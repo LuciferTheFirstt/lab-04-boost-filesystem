@@ -13,6 +13,7 @@ using namespace std;
 map<string,map<int,pair<int,int>>> brokers;
 
 void fillup(const path &path){
+cout << path.string() << endl;
     for(directory_entry &x : directory_iterator(path)){
         if( is_directory(x) ||  is_symlink(x))
             fillup(x.path());
@@ -80,7 +81,15 @@ if (is_regular_file(dirEntry))
         {
 	  files.push_back(dirEntry.path().filename().string());
 	  folders.push_back(dirEntry.path().parent_path().filename().string());
-	  fillup(dirEntry.path().filename().string());
+	}
+}
+}
+for(size_t i=0; i<files.size();++i)
+{
+cout<<folders[i]<<" "<<files[i]<<endl;
+}
+
+  fillup(*p);
             cout << "\n\tOverall:\n";
             if(!brokers.empty()){
                 for_each(brokers.begin(),brokers.end(),[](auto &i){
@@ -91,13 +100,8 @@ if (is_regular_file(dirEntry))
             }
             else
                 cout << endl << "Empty!" << endl;
-	}
-}
-}
-for(size_t i=0; i<files.size();++i)
-{
-cout<<folders[i]<<" "<<files[i]<<endl;
-}
+	
+
 delete p;
 return 0;
 }
