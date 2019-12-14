@@ -1,11 +1,55 @@
 #include <boost/regex.hpp>
 #include <boost/filesystem.hpp>
+#include <fstream>
+#include <map>
+#include <exception>
 #include <algorithm>
 #include <iostream>
 #include <vector>
 #include <string>
 using namespace boost::filesystem;
 using namespace std;
+
+map<string,map<int,pair<int,int>>> brokers;
+
+void fillup(const path &path){
+    for(directory_entry &x : directory_iterator(path)){
+        if( is_directory(x) ||  is_symlink(x))
+            fillup(x.path());
+
+        if(! is_regular_file(x))
+            continue;
+
+        string file_name=x.path().filename().string();
+        string extension=x.path().extension().string();
+
+        if(file_name.find("balance_")!=0)
+            continue;
+
+        if(extension!=".txt")
+            continue;
+
+        if(file_name.length() != 29)
+            continue;
+
+        int account=0;
+        int date=0;
+        try{
+            account=stoi(file_name.substr(8,8));
+            date=stoi(file_name.substr(17,8));
+        }
+        catch(exception &e){
+            continue;
+        }
+
+        string broker_name=x.path().parent_path().filename().string();
+        cout << broker_name << " " << file_name << endl;
+        brokers[broker_name][account].first=max(brokers[broker_name][account].first,date);
+        brokers[broker_name][account].second++;
+    }
+}
+
+
 int main(int argc, char *argv[])
 {
 
@@ -36,21 +80,20 @@ if (is_regular_file(dirEntry))
         {
 	  files.push_back(dirEntry.path().filename().string());
 	  folders.push_back(dirEntry.path().parent_path().filename().string());
-	  //std::string brocker = dirEntry.path().parent_path().filename().string();
-          //std::string raw = change_extension(dirEntry.path().filename().string(), "").string();
-          //raw.erase(0, 8);
-          //std::string account(raw.substr(0, 8));
-          //std::string date(raw.substr(9, 8));
-
-	  //std::vector<std::string> temp_vector;
- 	  //std::map<std::string, std::vector<std::string>> temp_map;
-   	  //temp_vector.push_back(date);
-    	  //temp_map[account] = account;
+	  fillup(dirEntry.path().filename().string());
+            cout << "\n\tOverall:\n";
+            if(!brokers.empty()){
+                for_each(brokers.begin(),brokers.end(),[](auto &i){
+                    for(const auto & j : i.second)
+                        cout << "broker: " << i.first << " account: " << j.first << " files: "
+                            << j.second.second << " lastdate: " << j.second.first << endl;
+                });
+            }
+            else
+                cout << endl << "Empty!" << endl;
 	}
-
 }
 }
-
 for(size_t i=0; i<files.size();++i)
 {
 cout<<folders[i]<<" "<<files[i]<<endl;
@@ -59,9 +102,3 @@ delete p;
 return 0;
 }
 
-//auto Brocker_find(std::string brocker, std::string account, std::string data)
-//{
-
-
-
-//}
