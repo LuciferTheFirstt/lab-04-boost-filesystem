@@ -13,13 +13,12 @@ using namespace std;
 
 map<string, map<int, pair<int, int>>> brokers;
 
-void Print(string file_name, string extension,int account,int date,const path& path)
+void Print(string file_name, int account, int date,directory_entry& x)
 {
-	string broker_name = x.path().parent_path().filename().string();
-	cout << broker_name << " " << file_name << endl;
-	brokers[broker_name][account].first = max(brokers[broker_name][account].first, date);
-	brokers[broker_name][account].second++;
-
+		string broker_name = x.path().parent_path().filename().string();
+		cout << broker_name << " " << file_name << endl;
+		brokers[broker_name][account].first = max(brokers[broker_name][account].first, date);
+		brokers[broker_name][account].second++;	
 }
 
 void fillup(const path& path) {
@@ -46,13 +45,13 @@ void fillup(const path& path) {
 		int account = 0;
 		int date = 0;
 		//try {
-			account = stoi(file_name.substr(8, 8));
-			date = stoi(file_name.substr(17, 8));
+		account = stoi(file_name.substr(8, 8));
+		date = stoi(file_name.substr(17, 8));
 		//}
 		/*catch (exception & e) {
 			continue;
 		}*/
-		Print(file_name,extension,account,date,*path);
+		Print(file_name,account, date,x);
 	}
 }
 
@@ -64,21 +63,21 @@ int main(int argc, char* argv[])
 
 	if (argc < 2)
 	{
-		p= new path(current_path());
+		p = new path(current_path());
 	}
 	else p = new path(argv[1]);
 
 	vector<string> files;
 	vector<string> folders;
-	try{
-		bool exists( const path& p );
+	try {
+		bool exists(const path & p);
 	}
-	catch(...){
+	catch (...) {
 		throw std::invalid_argument("p");
 	}
 	for (const auto& dirEntry : recursive_directory_iterator(*p))
 	{
-	
+
 		if (is_directory(dirEntry))
 		{
 			continue;
@@ -101,7 +100,7 @@ int main(int argc, char* argv[])
 	}
 
 	fillup(*p);
-	
+
 	cout << "\n\tOverall:\n";
 	if (!brokers.empty()) {
 		for_each(brokers.begin(), brokers.end(), [](auto& i) {
