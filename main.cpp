@@ -13,12 +13,12 @@ using namespace std;
 
 map<string, map<int, pair<int, int>>> brokers;
 
-void Print(string file_name, int account, int date,directory_entry& x)
+void Print(string file_name, unsigned long long account, int date, directory_entry& x)
 {
-		string broker_name = x.path().parent_path().filename().string();
-		cout << broker_name << " " << file_name << endl;
-		brokers[broker_name][account].first = max(brokers[broker_name][account].first, date);
-		brokers[broker_name][account].second++;	
+	string broker_name = x.path().parent_path().filename().string();
+	cout << broker_name << " " << file_name << endl;
+	brokers[broker_name][account].first = max(brokers[broker_name][account].first, date);
+	brokers[broker_name][account].second++;
 }
 
 void fillup(const path& path) {
@@ -42,23 +42,22 @@ void fillup(const path& path) {
 		if (file_name.length() != 29)
 			continue;
 
-		int account = 0;
-		int date = 0;
+		
 		//try {
-		account = stoi(file_name.substr(8, 8));
-		date = stoi(file_name.substr(17, 8));
+		auto account = strtoull(file_name.substr(8, 8));
+		auto date = strtoull(file_name.substr(17, 8));
 		//}
 		/*catch (exception & e) {
 			continue;
 		}*/
-		Print(file_name,account, date,x);
+		Print(file_name, account, date, x);
 	}
 }
 
 
 int main(int argc, char* argv[])
 {
-
+	
 	path* p;
 
 	if (argc < 2)
